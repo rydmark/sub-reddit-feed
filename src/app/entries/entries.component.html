@@ -1,0 +1,19 @@
+
+  <ul>
+  <li *ngFor='let entry of entries'>
+    <a routerLink="/entry/{{entry.id}}">
+      <h3>{{entry.title}} </h3>
+      <img *ngIf="entry.thumbnail != 'self'" src="{{entry.thumbnail}}">
+      <p>
+          created: {{entry.created | date}}<br>
+          created: {{entry.created}}<br>
+          num_comments: {{entry.num_comments}}<br>
+          author: {{entry.author}}<br>
+          score: {{entry.score}}<br>
+          permalink: {{entry.permalink}}<br>
+          id: {{entry.id}}<br>
+      </p>
+    </a>
+  </li>
+</ul>
+
