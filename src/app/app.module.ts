@@ -5,12 +5,14 @@ import { AppComponent } from './app.component';
 import { EntriesComponent } from './entries/entries.component';
 import { AppRoutingModule } from './app-routing.module';
 import { EntryDetailsComponent } from './entry-details/entry-details.component';
+import { EntryCommentComponent } from './entry-comment/entry-comment.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     EntriesComponent,
-    EntryDetailsComponent
+    EntryDetailsComponent,
+    EntryCommentComponent
   ],
   imports: [
     BrowserModule,

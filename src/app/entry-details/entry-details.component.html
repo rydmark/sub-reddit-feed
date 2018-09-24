@@ -1,11 +1,19 @@
-<p>
-  entry-details doesn't works!
-</p>
-<div *ngIf="tjohej != null">
-<p>
-    {{tjohej.entry.title}}
-  </p>
-<p>
-  {{tjohej.num_root_comments}}
-</p>
+<div *ngIf="entryDetails != null">
+    <h3>{{entryDetails.entry.title}} </h3>
+    <img *ngIf="entryDetails.entry.thumbnail != 'self' && entryDetails.entry.thumbnail != 'default'" src="{{entryDetails.entry.thumbnail}}">
+    <p>
+        created: {{entryDetails.entry.created | date}}<br>
+        created: {{entryDetails.entry.created}}<br>
+        num_comments: {{entryDetails.entry.num_comments}}<br>
+        author: {{entryDetails.entry.author}}<br>
+        score: {{entryDetails.entry.score}}<br>
+        permalink: {{entryDetails.entry.permalink}}<br>
+        id: {{entryDetails.entry.id}}<br>
+    </p>
+    <p>
+        selftext: {{entryDetails.entry.selftext}}
+    </p>
+  <div *ngFor="let comment of entryDetails.entryComments">
+      <app-entry-comment [entryComment]="comment"></app-entry-comment>
+  </div>
 </div>

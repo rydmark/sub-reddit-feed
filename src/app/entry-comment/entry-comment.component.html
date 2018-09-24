@@ -1,0 +1,8 @@
+<div *ngIf="entryComment" style="border: 1px solid pink; padding-left: 20px;">
+    {{entryComment.author}} <br>
+    {{entryComment.body}} <br>
+    {{entryComment.score}} <br>
+  <div *ngFor="let comment of entryComment.replies">
+      <app-entry-comment [entryComment]="comment"></app-entry-comment>
+  </div>
+</div>

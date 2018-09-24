@@ -1,7 +1,8 @@
 import { Entry } from './entry';
+import { EntryComment } from './entry-comment';
 
 export class EntryDetails {
     entry: Entry;
-    num_root_comments: number;
+    entryComments: EntryComment[];
   }
   

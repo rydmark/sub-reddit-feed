@@ -1,9 +1,15 @@
 
+<h2>Showing entries from: {{subreddit}}</h2>
+
+<select (change)="limitChanged($event.target.value)">
+  <option [value]="limit" [selected]="limit == selectedLimit" *ngFor="let limit of limits">{{limit}}</option>
+</select>
+<div *ngIf="entryPage != null"> 
   <ul>
-  <li *ngFor='let entry of entries'>
-    <a routerLink="/entry/{{entry.id}}">
+  <li *ngFor='let entry of entryPage.entries'>
+    <a routerLink="comments/{{entry.id}}">
       <h3>{{entry.title}} </h3>
-      <img *ngIf="entry.thumbnail != 'self'" src="{{entry.thumbnail}}">
+      <img *ngIf="entry.thumbnail != 'self' && entry.thumbnail != 'default'" src="{{entry.thumbnail}}">
       <p>
           created: {{entry.created | date}}<br>
           created: {{entry.created}}<br>
@@ -16,4 +22,7 @@
     </a>
   </li>
 </ul>
+<button *ngIf="entryPage.before != null" (click)="goToPreviousPage()">previous</button>
+<button *ngIf="entryPage.after != null" (click)="goToNextPage()">next</button>
 
+</div>

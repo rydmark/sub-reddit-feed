@@ -1,59 +1,96 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { HttpClient, HttpHeaders, JsonpInterceptor } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Entry } from './entry';
 import { EntryDetails } from './entry-details';
 import { catchError, map, tap } from 'rxjs/operators';
-//import { pipe } from '@angular/core/src/render3/pipe';
-const httpOptions = {
-  headers: new HttpHeaders({ 'Access-Control-Allow-Origin': '*' })
-};
+import { EntryPage } from './entry-page';
+import { EntryComment } from './entry-comment';
+
 
 @Injectable({
   providedIn: 'root'
 })
 
-
 export class SubRedditService {
 
   private baseUrl = "https://www.reddit.com/r/"
-  private defaultSubreddit = "sweden";
 
   constructor(private http: HttpClient) { }
 
-  getEntries(): Observable<Entry[]> {
-    var requestUrl = this.baseUrl + this.defaultSubreddit + ".json?limit=10";
+  getEntries(subreddit: string, limit:number, before:string, after:string, count: number): Observable<EntryPage> {
+    var query = '?limit=' + (limit != null ? limit : '10');
+    if(before != null)
+    {
+      query += "&before=" + before;
+    }
+    else if(after != null)
+    {
+      query += "&after=" + after;
+    }
+    if(count != null)
+    {
+      query += "&count=" + count;
+    }
+    var requestUrl = this.baseUrl + subreddit + '.json' + query;
     return this.http.jsonp(requestUrl, 'jsonp').pipe(
-      tap(response => console.log('response: ' + response)),
-      map(response => response['data']['children']),
-      map(list =>  {
+      map(response =>  {
+        var entryPage = new EntryPage();
+        var data = response['data'];
+        entryPage.before = data['before'];
+        entryPage.after = data['after'];
         var entries = [];
+        var list = response['data']['children'];
         list.forEach(element => {
           var entry = this.getEntryFromRawJson(element['data']);
           entries.push(entry);
         });
-        return entries;
-      }));
+        entryPage.entries = entries;
+        return entryPage;
+      }),catchError(this.handleError('getEntries', null))
+        
+      );
   }
 
-  getEntryDetails(id: string) : Observable<EntryDetails> {
-    var requestUrl = this.baseUrl + this.defaultSubreddit + "/comments/" + id + ".json";
+  getEntryDetails(subbreddit: string, id: string) : Observable<EntryDetails> {
+    var requestUrl = this.baseUrl + subbreddit + "/comments/" + id + ".json";
     return this.http.jsonp(requestUrl, 'jsonp').pipe(
-      tap(response => console.log('response: ' + response)),
       map(response =>  {
         var entryDetails = new EntryDetails();
         var rawEntry = response[0]['data']['children'][0];
         var entry = this.getEntryFromRawJson(rawEntry['data']);
-         entryDetails.entry = entry;
-        
-        var rawRootComments = response[1]['data']['children'];
-        var numberOfRootComments = 0;
-        rawRootComments.forEach(rawRootComments => {
-          numberOfRootComments++;
-        });
-        entryDetails.num_root_comments = numberOfRootComments;
+        entryDetails.entry = entry;
+        entryDetails.entryComments = this.getReplies(response[1]['data']['children']);
         return entryDetails;
-      }));
+      }),catchError(this.handleError('getEntryDetails', null)));
+  }
+
+  private handleError<T> (operation = 'operation', result?: T) {
+    return (error: any): Observable<T> => {
+      console.log('error when requesting ' + operation);
+      console.log(error);
+      return of(result as T);
+    };
+  }
+
+  private getReplies(children) : EntryComment[]
+  {
+    var entryComments = [];
+    if(children)
+    {
+      children.forEach(child => {
+          var entryComment = new EntryComment();
+          var data = child['data'];
+          entryComment.author = data['author'];
+          entryComment.body = data['body'];
+          entryComment.score = data['score'];
+          var replies = data['replies'];
+          if(replies)
+            entryComment.replies = this.getReplies(replies['data']['children']);
+          entryComments.push(entryComment);
+      })
+    }
+    return entryComments;
   }
 
   private getEntryFromRawJson(rawEntry) : Entry

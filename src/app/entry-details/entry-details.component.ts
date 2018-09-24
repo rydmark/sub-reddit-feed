@@ -17,7 +17,7 @@ export class EntryDetailsComponent implements OnInit {
     private location: Location
   ) {}
 
-  tjohej: EntryDetails;
+  entryDetails: EntryDetails;
 
   ngOnInit() {
     this.getEntryDetails();
@@ -25,7 +25,8 @@ export class EntryDetailsComponent implements OnInit {
 
   getEntryDetails(): void {
     const id = this.route.snapshot.paramMap.get('id');
-    this.subRedditService.getEntryDetails(id)
-      .subscribe(entryDetails => this.tjohej = entryDetails);
+    const subreddit = this.route.snapshot.paramMap.get('subreddit');
+    this.subRedditService.getEntryDetails(subreddit, id)
+      .subscribe(entryDetails => this.entryDetails = entryDetails);
   }
 }
